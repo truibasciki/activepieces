@@ -20,7 +20,7 @@ const registry: Record<WorkerJobType, JobHandler> = {
     [WorkerJobType.EXECUTE_VALIDATION]: executeValidationJob,
     [WorkerJobType.EXECUTE_EXTRACT_PIECE_INFORMATION]: extractPieceInfoJob,
     [WorkerJobType.EVENT_DESTINATION]: eventDestinationJob,
-    [WorkerJobType.EXECUTE_CHAT_AGENT]: { execute: async () => { throw new Error('Chat agent not supported in Community Edition') } },
+    [WorkerJobType.EXECUTE_CHAT_AGENT]: { jobType: WorkerJobType.EXECUTE_CHAT_AGENT, execute: async () => { throw new Error('Chat agent not supported in Community Edition') } },
 }
 
 export function getHandler(jobType: WorkerJobType): JobHandler<JobData> {

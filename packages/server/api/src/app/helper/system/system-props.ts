@@ -176,7 +176,7 @@ export const apVersionUtil = {
                     signal: AbortSignal.timeout(5000),
                 },
             )
-            const data: PackageJson = await response.json()
+            const data = await response.json() as PackageJson
             cachedVersion = data.version
             return data.version
         }

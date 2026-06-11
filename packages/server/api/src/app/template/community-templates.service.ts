@@ -28,7 +28,7 @@ export const communityTemplates = {
                 },
             })
         }
-        const template = await response.json()
+        const template = await response.json() as Template
         return template
     },
     getCategories: async (): Promise<string[]> => {
@@ -39,7 +39,7 @@ export const communityTemplates = {
                 'Content-Type': 'application/json',
             },
         })
-        const categories = await response.json()
+        const categories = await response.json() as string[]
         return categories
     },
     list: async (request: ListTemplatesRequestQuery): Promise<SeekPage<Template>> => {
@@ -51,7 +51,7 @@ export const communityTemplates = {
                 'Content-Type': 'application/json',
             },
         })
-        const templates = await response.json()
+        const templates = await response.json() as SeekPage<Template>
         return templates
     },
 }
