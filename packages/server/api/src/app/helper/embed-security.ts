@@ -1,7 +1,6 @@
-import { ApEdition, isNil } from '@activepieces/shared'
+import { isNil } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { lru, LRU } from 'tiny-lru'
-import { embedSubdomainHooks } from './embed-subdomain-hooks'
 import { platformService } from '../platform/platform.service'
 import { system } from './system/system'
 import { AppSystemProp } from './system/system-props'
@@ -19,9 +18,8 @@ function buildFrameAncestorsHeader({ origins }: { origins: string[] }): string {
     return `frame-ancestors 'self' ${origins.join(' ')}`
 }
 
-async function resolveAllowedOrigins({ hostname, log }: { hostname: string, log: FastifyBaseLogger }): Promise<string[]> {
-    const edition = system.getEdition()
-    const cacheKey = edition === ApEdition.CLOUD ? hostname : SELF_HOSTED_CACHE_KEY
+async function resolveAllowedOrigins({ hostname: _hostname, log }: { hostname: string, log: FastifyBaseLogger }): Promise<string[]> {
+    const cacheKey = SELF_HOSTED_CACHE_KEY
 
     const hit = cache.get(cacheKey)
     if (!isNil(hit)) {
@@ -30,18 +28,6 @@ async function resolveAllowedOrigins({ hostname, log }: { hostname: string, log:
     const envOrigins = system.getList(AppSystemProp.ALLOWED_EMBED_ORIGINS).filter(isValidOrigin)
 
     try {
-        if (edition === ApEdition.CLOUD) {
-            const record = await embedSubdomainHooks.get(log).getByHostname({ hostname })
-            if (record === null || record === undefined) {
-                cache.set(cacheKey, envOrigins)
-                return envOrigins
-            }
-            const platform = await platformService(log).getOneOrThrow(record.platformId)
-            const origins = mergeUnique(platform.allowedEmbedOrigins ?? [], envOrigins)
-            cache.set(cacheKey, origins)
-            return origins
-        }
-
         const platform = await platformService(log).getOldestPlatform()
         if (isNil(platform)) {
             cache.set(cacheKey, envOrigins)
@@ -52,7 +38,7 @@ async function resolveAllowedOrigins({ hostname, log }: { hostname: string, log:
         return origins
     }
     catch (e) {
-        log.warn({ error: e, hostname }, 'Failed to resolve embed allowed origins')
+        log.warn({ error: e }, 'Failed to resolve embed allowed origins')
         return envOrigins
     }
 }

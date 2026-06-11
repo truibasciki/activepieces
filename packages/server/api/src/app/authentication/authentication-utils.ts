@@ -1,4 +1,4 @@
-import { ActivepiecesError, ApEdition, ApEnvironment, assertNotNullOrUndefined, AuthenticationResponse, EndpointScope, ErrorCode, isNil, PlatformRole, PrincipalType, Project, ProjectType, SsoDomainVerificationStatus, TelemetryEventName, User, UserIdentity, UserIdentityProvider, UserStatus } from '@activepieces/shared'
+import { ActivepiecesError, ApEnvironment, assertNotNullOrUndefined, AuthenticationResponse, EndpointScope, ErrorCode, isNil, PlatformRole, PrincipalType, Project, ProjectType, TelemetryEventName, User, UserIdentity, UserIdentityProvider, UserStatus } from '@activepieces/shared'
 import { FastifyBaseLogger, FastifyRequest } from 'fastify'
 import { system } from '../helper/system/system'
 import { AppSystemProp } from '../helper/system/system-props'
@@ -119,80 +119,16 @@ export const authenticationUtils = (log: FastifyBaseLogger) => ({
         }
     },
 
-    async assertDomainIsAllowed({
-        email,
-        platformId,
-    }: AssertDomainIsAllowedParams): Promise<void> {
-        const edition = system.getEdition()
-        if (edition === ApEdition.COMMUNITY) {
-            return
-        }
-        const platform = await platformService(log).getOneWithPlanOrThrow(platformId)
-        if (!platform.plan.ssoEnabled) {
-            return
-        }
-        const emailDomain = email.split('@')[1]
-        const isAllowedDomaiin =
-            !platform.enforceAllowedAuthDomains ||
-            platform.allowedAuthDomains.includes(emailDomain)
-
-        if (!isAllowedDomaiin) {
-            throw new ActivepiecesError({
-                code: ErrorCode.DOMAIN_NOT_ALLOWED,
-                params: {
-                    domain: emailDomain,
-                },
-            })
-        }
+    async assertDomainIsAllowed(_params: AssertDomainIsAllowedParams): Promise<void> {
+        return
     },
 
-    async assertEmailMatchesSsoDomain({
-        email,
-        platformId,
-    }: AssertEmailMatchesSsoDomainParams): Promise<void> {
-        const edition = system.getEdition()
-        if (edition !== ApEdition.CLOUD) {
-            return
-        }
-        const platform = await platformService(log).getOneWithPlanOrThrow(platformId)
-        if (!platform.plan.ssoEnabled) {
-            return
-        }
-        if (isNil(platform.ssoDomain) || platform.ssoDomainVerification?.status !== SsoDomainVerificationStatus.VERIFIED) {
-            return
-        }
-        const emailDomain = email.split('@')[1]?.toLowerCase() ?? ''
-        if (emailDomain !== platform.ssoDomain) {
-            throw new ActivepiecesError({
-                code: ErrorCode.DOMAIN_NOT_ALLOWED,
-                params: {
-                    domain: emailDomain,
-                },
-            })
-        }
+    async assertEmailMatchesSsoDomain(_params: AssertEmailMatchesSsoDomainParams): Promise<void> {
+        return
     },
 
-    async assertEmailAuthIsEnabled({
-        platformId,
-        provider,
-    }: AssertEmailAuthIsEnabledParams): Promise<void> {
-        const edition = system.getEdition()
-        if (edition === ApEdition.COMMUNITY) {
-            return
-        }
-        const platform = await platformService(log).getOneWithPlanOrThrow(platformId)
-        if (!platform.plan.ssoEnabled) {
-            return
-        }
-        if (provider !== UserIdentityProvider.EMAIL) {
-            return
-        }
-        if (!platform.emailAuthEnabled) {
-            throw new ActivepiecesError({
-                code: ErrorCode.EMAIL_AUTH_DISABLED,
-                params: {},
-            })
-        }
+    async assertEmailAuthIsEnabled(_params: AssertEmailAuthIsEnabledParams): Promise<void> {
+        return
     },
 
     async sendTelemetry({

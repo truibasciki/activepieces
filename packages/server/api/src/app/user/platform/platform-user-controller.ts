@@ -1,5 +1,4 @@
 import {
-    ApEdition,
     ApId,
     assertNotNullOrUndefined,
     ListUsersRequestBody,
@@ -13,7 +12,6 @@ import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { StatusCodes } from 'http-status-codes'
 import { z } from 'zod'
 import { securityAccess } from '../../core/security/authorization/fastify-security'
-import { system } from '../../helper/system/system'
 import { userService } from '../user-service'
 
 export const platformUserController: FastifyPluginAsyncZod = async (app) => {
@@ -47,19 +45,10 @@ export const platformUserController: FastifyPluginAsyncZod = async (app) => {
         const platformId = req.principal.platform.id
         assertNotNullOrUndefined(platformId, 'platformId')
 
-        const edition = system.getEdition()
-        if (edition === ApEdition.CLOUD) {
-            await userService(req.log).removeFromPlatform({
-                id: req.params.id,
-                platformId,
-            })
-        }
-        else {
-            await userService(req.log).delete({
-                id: req.params.id,
-                platformId,
-            })
-        }
+        await userService(req.log).delete({
+            id: req.params.id,
+            platformId,
+        })
 
         return res.status(StatusCodes.NO_CONTENT).send()
     })

@@ -11,16 +11,11 @@ import {
 } from '@/components/icons/chevron-left';
 import { FileHeartIcon } from '@/components/icons/file-heart';
 import { FileJson2Icon } from '@/components/icons/file-json2';
-import { FrameIcon } from '@/components/icons/frame';
-import { KeyRoundIcon } from '@/components/icons/key-round';
 import { LayoutGridIcon } from '@/components/icons/layout-grid';
-import { LogInIcon } from '@/components/icons/log-in';
 import { MousePointerClickIcon } from '@/components/icons/mouse-pointer-click';
 import { PaletteIcon } from '@/components/icons/palette';
 import { PuzzleIcon } from '@/components/icons/puzzle';
 import { ServerIcon } from '@/components/icons/server';
-import { Settings2Icon } from '@/components/icons/settings2';
-import { SquareDashedBottomCodeIcon } from '@/components/icons/square-dashed-bottom-code';
 import { UnplugIcon } from '@/components/icons/unplug';
 import { UsersIcon } from '@/components/icons/users';
 import { WebhookIcon } from '@/components/icons/webhook';
@@ -68,12 +63,6 @@ export function PlatformSidebar() {
       locked: !platform.plan.customAppearanceEnabled,
     },
     {
-      to: '/platform/setup/connections',
-      label: t('Global Connections'),
-      icon: UnplugIcon,
-      locked: !platform.plan.globalConnectionsEnabled,
-    },
-    {
       to: '/platform/setup/pieces',
       label: t('Pieces'),
       icon: PuzzleIcon,
@@ -84,12 +73,6 @@ export function PlatformSidebar() {
       label: t('Templates'),
       icon: LayoutGridIcon,
       locked: !platform.plan.manageTemplatesEnabled,
-    },
-    {
-      to: '/platform/security/embed',
-      label: t('Embedding'),
-      icon: FrameIcon,
-      locked: !platform.plan.embeddingEnabled,
     },
   ];
 
@@ -128,43 +111,8 @@ export function PlatformSidebar() {
       items: setupItems,
     },
     {
-      label: t('Security'),
-      items: [
-        {
-          to: '/platform/security/sso',
-          label: t('Single Sign On'),
-          icon: LogInIcon,
-          locked: !platform.plan.ssoEnabled,
-        },
-        {
-          to: '/platform/security/project-roles',
-          label: t('Project Roles'),
-          icon: Settings2Icon,
-          locked: !platform.plan.projectRolesEnabled,
-        },
-        {
-          to: '/platform/security/api-keys',
-          label: t('API Keys'),
-          icon: FileJson2Icon,
-          locked: !platform.plan.apiKeysEnabled,
-        },
-        {
-          to: '/platform/security/secret-managers',
-          label: t('Secret Managers'),
-          icon: KeyRoundIcon,
-          locked: !platform.plan.secretManagersEnabled,
-        },
-      ],
-    },
-    {
       label: t('Observability'),
       items: [
-        {
-          to: '/platform/security/audit-logs',
-          label: t('Audit Logs'),
-          icon: SquareDashedBottomCodeIcon,
-          locked: !platform.plan.auditLogEnabled,
-        },
         {
           to: '/platform/infrastructure/event-destinations',
           label: t('Event Streaming'),

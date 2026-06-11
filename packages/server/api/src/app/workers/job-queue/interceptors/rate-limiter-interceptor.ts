@@ -1,25 +1,14 @@
 import { apDayjsDuration } from '@activepieces/server-utils'
-import { ApEdition, ExecuteFlowJobData, isNil, JOB_PRIORITY, JobData, PlanName, PlatformId, RATE_LIMIT_PRIORITY, RunEnvironment, WorkerJobType } from '@activepieces/shared'
+import { ExecuteFlowJobData, isNil, JOB_PRIORITY, JobData, PlatformId, RATE_LIMIT_PRIORITY, RunEnvironment, WorkerJobType } from '@activepieces/shared'
 
 import { FastifyBaseLogger } from 'fastify'
-import { getConcurrencyPoolSetKey, getPlatformPlanNameKey } from '../../../database/redis/keys'
-import { distributedStore, redisConnections } from '../../../database/redis-connections'
+import { getConcurrencyPoolSetKey } from '../../../database/redis/keys'
+import { redisConnections } from '../../../database/redis-connections'
 import { system } from '../../../helper/system/system'
 import { AppSystemProp } from '../../../helper/system/system-props'
 import { InterceptorResult, InterceptorVerdict, JobInterceptor } from '../job-interceptor'
 
 const RATE_LIMIT_WORKER_JOB_TYPES = [WorkerJobType.EXECUTE_FLOW]
-
-const PLAN_CONCURRENT_JOBS_LIMITS: Record<string, number> = {
-    [PlanName.STANDARD]: 5,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER1]: 5,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER2]: 5,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER3]: 10,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER4]: 15,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER5]: 20,
-    [PlanName.APPSUMO_ACTIVEPIECES_TIER6]: 25,
-    [PlanName.ENTERPRISE]: 30,
-}
 
 function shouldContinue(jobData: JobData): jobData is ExecuteFlowJobData {
     if (!system.getBoolean(AppSystemProp.PROJECT_RATE_LIMITER_ENABLED)) {
@@ -36,15 +25,7 @@ function shouldContinue(jobData: JobData): jobData is ExecuteFlowJobData {
 }
 
 
-async function getMaxConcurrentJobsForPlatformPlan({ platformId }: { platformId: PlatformId }): Promise<number> {
-    if (system.getEdition() !== ApEdition.CLOUD) {
-        return system.getNumberOrThrow(AppSystemProp.DEFAULT_CONCURRENT_JOBS_LIMIT)
-    }
-    const platformPlanName = await distributedStore.get<string>(getPlatformPlanNameKey(platformId))
-    if (!isNil(platformPlanName)) {
-        const limit = PLAN_CONCURRENT_JOBS_LIMITS[platformPlanName]
-        if (!isNil(limit)) return limit
-    }
+async function getMaxConcurrentJobsForPlatformPlan(_params: { platformId: PlatformId }): Promise<number> {
     return system.getNumberOrThrow(AppSystemProp.DEFAULT_CONCURRENT_JOBS_LIMIT)
 }
 

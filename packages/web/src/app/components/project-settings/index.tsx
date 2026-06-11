@@ -1,7 +1,6 @@
 import {
   isNil,
   Permission,
-  PlatformRole,
   ProjectType,
 } from '@activepieces/shared';
 import { t } from 'i18next';
@@ -18,8 +17,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { projectCollectionUtils } from '@/features/projects';
 import { ApProjectDisplay } from '@/features/projects/components/ap-project-display';
 import { useAuthorization } from '@/hooks/authorization-hooks';
-import { platformHooks } from '@/hooks/platform-hooks';
-import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
 import { ProjectAvatar } from '../project-avatar';
@@ -53,9 +50,6 @@ export function ProjectSettingsDialog({
   const { checkAccess } = useAuthorization();
   const { project } = projectCollectionUtils.useCurrentProject();
   const previousOpenRef = useRef(open);
-
-  const { platform } = platformHooks.useCurrentPlatform();
-  const platformRole = userHooks.getCurrentUserPlatformRole();
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -93,9 +87,7 @@ export function ProjectSettingsDialog({
     previousOpenRef.current = open;
   }, [open, project]);
 
-  const hasGeneralSettings =
-    project.type === ProjectType.TEAM ||
-    (platform.plan.embeddingEnabled && platformRole === PlatformRole.ADMIN);
+  const hasGeneralSettings = project.type === ProjectType.TEAM;
 
   const tabs = [
     {

@@ -29,7 +29,6 @@ import {
 } from '@/components/ui/popover';
 import { projectCollectionUtils } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
-import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
@@ -45,7 +44,6 @@ type GeneralSettingsProps = {
 };
 
 export const GeneralSettings = ({ form }: GeneralSettingsProps) => {
-  const { platform } = platformHooks.useCurrentPlatform();
   const platformRole = userHooks.getCurrentUserPlatformRole();
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const { project } = projectCollectionUtils.useCurrentProject();
@@ -56,8 +54,6 @@ export const GeneralSettings = ({ form }: GeneralSettingsProps) => {
     ApFlagId.DEFAULT_CONCURRENT_JOBS_LIMIT,
   );
   const showGeneralSettings = project.type === ProjectType.TEAM;
-  const showExternalIdSettings =
-    platform.plan.embeddingEnabled && platformRole === PlatformRole.ADMIN;
   const colorOptions = Object.values(ColorName);
 
   return (
@@ -145,30 +141,6 @@ export const GeneralSettings = ({ form }: GeneralSettingsProps) => {
               />
             </div>
           </div>
-        )}
-        {showExternalIdSettings && (
-          <FormField
-            name="externalId"
-            render={({ field }) => (
-              <FormItem>
-                <Label htmlFor="externalId" className="text-sm font-medium">
-                  {t('External ID')}
-                </Label>
-
-                <Input
-                  {...field}
-                  id="externalId"
-                  placeholder={t('org-3412321')}
-                  className="h-10 font-mono"
-                  disabled={form.formState.disabled}
-                />
-                <FormDescription className="text-xs text-muted-foreground">
-                  {t('Used to identify the project based on your SaaS ID')}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
         )}
         {platformRole === PlatformRole.ADMIN && (
           <FormField

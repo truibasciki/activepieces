@@ -1,6 +1,4 @@
 import {
-    AIProviderName,
-    ApEdition,
     FlowAction,
     FlowActionType,
     flowStructureUtil,
@@ -8,7 +6,6 @@ import {
     isNil,
     PieceAction,
 } from '@activepieces/shared'
-import { system } from '../../../helper/system/system'
 import { Migration } from '.'
 
 
@@ -161,22 +158,9 @@ function extractModelFromInput(input: Record<string, unknown>): string {
 }
 
 function migrateModel(provider: string | undefined, modelId: string): { model: string | undefined, provider: string | undefined } {
-    if (isNil(provider)) {
-        return {
-            provider,
-            model: modelId,
-        }
-    }
-    const edition = system.getEdition()
-    if (edition !== ApEdition.CLOUD) {
-        return {
-            provider,
-            model: modelId,
-        }
-    }
     return {
-        provider: AIProviderName.ACTIVEPIECES,
-        model: `${provider.toLocaleLowerCase()}/${modelIdToOpenRouter[modelId] ?? modelId}`,
+        provider,
+        model: modelId,
     }
 }
 
