@@ -6,6 +6,7 @@ import {
     SeekPage,
     SERVICE_KEY_SECURITY_OPENAPI,
     UpdateUserRequestBody,
+    UserWithBadges,
     UserWithMetaInformation,
 } from '@activepieces/shared'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
@@ -15,6 +16,12 @@ import { securityAccess } from '../../core/security/authorization/fastify-securi
 import { userService } from '../user-service'
 
 export const platformUserController: FastifyPluginAsyncZod = async (app) => {
+
+    app.get('/:id', GetUserByIdRequest, async (req): Promise<UserWithBadges> => {
+        const userId = req.params.id
+        const platformId = req.principal.platform.id
+        return userService(req.log).getOneByIdAndPlatformIdOrThrow({ id: userId, platformId })
+    })
 
     app.get('/', ListUsersRequest, async (req) => {
         const platformId = req.principal.platform.id
@@ -87,6 +94,23 @@ const UpdateUserRequest = {
     },
     config: {
         security: securityAccess.platformAdminOnly([PrincipalType.USER, PrincipalType.SERVICE]),
+    },
+}
+
+const GetUserByIdRequest = {
+    schema: {
+        params: z.object({
+            id: ApId,
+        }),
+        response: {
+            [StatusCodes.OK]: UserWithBadges,
+        },
+        tags: ['users'],
+        description: 'Get a user by id',
+        security: [SERVICE_KEY_SECURITY_OPENAPI],
+    },
+    config: {
+        security: securityAccess.publicPlatform([PrincipalType.USER, PrincipalType.SERVICE]),
     },
 }
 

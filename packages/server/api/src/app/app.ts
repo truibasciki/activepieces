@@ -45,6 +45,7 @@ import { pieceMetadataService } from './pieces/metadata/piece-metadata-service'
 import { pieceSyncService } from './pieces/piece-sync-service'
 import { tagsModule } from './pieces/tags/tags-module'
 import { platformModule } from './platform/platform.module'
+import { projectModule } from './project/project-module'
 import { storeEntryModule } from './store-entry/store-entry.module'
 import { tablesModule } from './tables/tables.module'
 import { templateModule } from './template/template.module'
@@ -152,6 +153,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     await app.register(authenticationModule)
     await app.register(triggerModule)
     await app.register(platformModule)
+    await app.register(projectModule)
     await app.register(humanInputModule)
     await app.register(tagsModule)
     await app.register(mcpServerModule)

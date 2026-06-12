@@ -1,7 +1,6 @@
 import {
     AppConnection,
     Cell,
-    ConcurrencyPool,
     Field,
     File,
     Flow,
@@ -33,7 +32,6 @@ type ProjectSchema = Project & {
     records: Record[]
     cells: Cell[]
     tableWebhooks: TableWebhook[]
-    pool?: ConcurrencyPool | null
 }
 
 export const ProjectEntity = new EntitySchema<ProjectSchema>({
@@ -77,10 +75,6 @@ export const ProjectEntity = new EntitySchema<ProjectSchema>({
             type: 'jsonb',
             nullable: true,
         },
-        poolId: {
-            ...ApIdSchema,
-            nullable: true,
-        },
     },
     indices: [
         {
@@ -97,11 +91,6 @@ export const ProjectEntity = new EntitySchema<ProjectSchema>({
         {
             name: 'idx_project_platform_id',
             columns: ['platformId'],
-            unique: false,
-        },
-        {
-            name: 'idx_project_pool_id',
-            columns: ['poolId'],
             unique: false,
         },
     ],
@@ -174,16 +163,6 @@ export const ProjectEntity = new EntitySchema<ProjectSchema>({
             type: 'one-to-many',
             target: 'table_webhook',
             inverseSide: 'project',
-        },
-        pool: {
-            type: 'many-to-one',
-            target: 'concurrency_pool',
-            onDelete: 'SET NULL',
-            nullable: true,
-            joinColumn: {
-                name: 'poolId',
-                foreignKeyConstraintName: 'fk_project_pool_id',
-            },
         },
     },
 })
