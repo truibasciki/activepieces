@@ -83,7 +83,6 @@ export const projectService = (log: FastifyBaseLogger) => ({
             ...spreadIfDefined('externalId', externalId),
             ...spreadIfDefined('releasesEnabled', request.releasesEnabled),
             ...spreadIfDefined('metadata', request.metadata),
-            ...(request.poolId !== undefined ? { poolId: request.poolId } : {}),
             ...(request.maxConcurrentJobs !== undefined ? { maxConcurrentJobs: request.maxConcurrentJobs } : {}),
         }
 
@@ -275,7 +274,6 @@ type UpdateTeamProjectParams = {
     externalId?: string
     releasesEnabled?: boolean
     metadata?: Metadata
-    poolId?: string | null
     maxConcurrentJobs?: number | null
     icon?: ProjectIcon
 }
@@ -285,7 +283,6 @@ type UpdatePersonalProjectParams = {
     externalId?: string
     releasesEnabled?: boolean
     metadata?: Metadata
-    poolId?: string | null
     maxConcurrentJobs?: number | null
 }
 

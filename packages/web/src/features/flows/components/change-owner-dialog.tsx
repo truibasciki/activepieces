@@ -26,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { projectMembersHooks } from '@/features/members/hooks/project-members-hooks';
 
 import { flowsApi } from '../api/flows-api';
 
@@ -47,7 +46,8 @@ const ChangeOwnerDialog = ({
   flow,
   onOwnerChange,
 }: ChangeOwnerDialogProps) => {
-  const { projectMembers, isLoading } = projectMembersHooks.useProjectMembers();
+  const projectMembers: undefined[] = [];
+  const isLoading = false;
   const [isDialogOpened, setIsDialogOpened] = useState(false);
 
   const form = useForm<ChangeOwnerFormSchema>({
@@ -117,13 +117,14 @@ const ChangeOwnerDialog = ({
                       <SelectGroup>
                         {projectMembers &&
                           projectMembers.length > 0 &&
-                          projectMembers.map((member) => (
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          (projectMembers as any[]).map((member) => (
                             <SelectItem
                               key={member.userId}
                               value={member.userId}
                             >
-                              {member.user.firstName} {member.user.lastName} (
-                              {member.user.email})
+                              {member.user?.firstName} {member.user?.lastName} (
+                              {member.user?.email})
                             </SelectItem>
                           ))}
                       </SelectGroup>

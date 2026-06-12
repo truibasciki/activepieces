@@ -1,10 +1,10 @@
 import {
-  InvitationType,
   isNil,
   Permission,
   SeekPage,
   UpdateUserRequestBody,
   User,
+  UserInvitation,
   UserStatus,
   UserWithMetaInformation,
 } from '@activepieces/shared';
@@ -13,7 +13,6 @@ import { t } from 'i18next';
 import { toast } from 'sonner';
 
 import { platformUserApi } from '@/api/platform-user-api';
-import { userInvitationApi } from '@/features/members/api/user-invitation';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 
@@ -41,20 +40,10 @@ export const platformUserHooks = {
     });
   },
   usePlatformInvitations: () => {
-    return useQuery({
-      queryFn: () => {
-        return userInvitationApi
-          .list({
-            type: InvitationType.PLATFORM,
-            cursor: undefined,
-            limit: 100,
-            projectId: null,
-          })
-          .then((res) => res.data);
-      },
+    return useQuery<UserInvitation[], Error>({
+      queryFn: async () => [] as UserInvitation[],
       queryKey: platformUserKeys.invitations,
       staleTime: 0,
-      meta: { showErrorDialog: true, loadSubsetOptions: {} },
     });
   },
 };
@@ -75,12 +64,11 @@ export const platformUserMutations = {
   useDeleteInvitation: ({ onSuccess }: { onSuccess: () => void }) => {
     return useMutation({
       mutationKey: ['delete-invitation'],
-      mutationFn: async (invitationId: string) => {
-        await userInvitationApi.delete(invitationId);
+      mutationFn: async (_invitationId: string) => {
+        // Invitations are not supported in CE
       },
       onSuccess: () => {
         onSuccess();
-        toast.success(t('Invitation deleted successfully'), { duration: 3000 });
       },
     });
   },

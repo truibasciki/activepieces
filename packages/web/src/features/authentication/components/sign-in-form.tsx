@@ -1,6 +1,4 @@
 import {
-  OtpType,
-  ApEdition,
   ApFlagId,
   AuthenticationResponse,
   ErrorCode,
@@ -27,7 +25,6 @@ import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
 import { useRedirectAfterLogin } from '@/lib/navigation-utils';
 
-import { CheckEmailNote } from './check-email-note';
 
 const SignInSchema = z.object({
   email: z.string().regex(formatUtils.emailRegex, t('Email is invalid')),
@@ -37,7 +34,6 @@ const SignInSchema = z.object({
 type SignInSchema = z.infer<typeof SignInSchema>;
 
 const SignInForm: React.FC = () => {
-  const [showCheckYourEmailNote, setShowCheckYourEmailNote] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const form = useForm<SignInSchema>({
     resolver: zodResolver(SignInSchema),
@@ -47,8 +43,6 @@ const SignInForm: React.FC = () => {
     },
     mode: 'onChange',
   });
-
-  const { data: edition } = flagsHooks.useFlag(ApFlagId.EDITION);
 
   const { data: userCreated } = flagsHooks.useFlag(ApFlagId.USER_CREATED);
   const redirectAfterLogin = useRedirectAfterLogin();
@@ -94,7 +88,9 @@ const SignInForm: React.FC = () => {
             break;
           }
           case ErrorCode.EMAIL_IS_NOT_VERIFIED: {
-            setShowCheckYourEmailNote(true);
+            form.setError('root.serverError', {
+              message: t('Email is not verified'),
+            });
             break;
           }
           case ErrorCode.DOMAIN_NOT_ALLOWED: {
@@ -151,7 +147,6 @@ const SignInForm: React.FC = () => {
                   data-testid="sign-in-email"
                   onChange={(e) => {
                     field.onChange(e);
-                    setShowCheckYourEmailNote(false);
                   }}
                 />
                 <FormMessage />
@@ -165,14 +160,12 @@ const SignInForm: React.FC = () => {
               <FormItem className="grid space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">{t('Password')}</Label>
-                  {edition !== ApEdition.COMMUNITY && (
-                    <Link
-                      to="/forget-password"
-                      className="text-muted-foreground text-xs hover:text-primary transition-all duration-200"
-                    >
-                      {t('Forgot your password?')}
-                    </Link>
-                  )}
+                  <Link
+                    to="/forget-password"
+                    className="text-muted-foreground text-xs hover:text-primary transition-all duration-200"
+                  >
+                    {t('Forgot your password?')}
+                  </Link>
                 </div>
                 <div className="relative">
                   <Input
@@ -221,14 +214,6 @@ const SignInForm: React.FC = () => {
         </form>
       </Form>
 
-      {showCheckYourEmailNote && (
-        <div className="mt-4">
-          <CheckEmailNote
-            email={form.getValues().email}
-            type={OtpType.EMAIL_VERIFICATION}
-          />
-        </div>
-      )}
     </>
   );
 };

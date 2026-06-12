@@ -1,13 +1,10 @@
 import {
-  OtpType,
-  ApEdition,
-  ApFlagId,
   ErrorCode,
   isNil,
 } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Eye, EyeOff } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -29,12 +26,10 @@ import {
   PopoverHeader,
   PopoverTitle,
 } from '@/components/ui/popover';
-import { CheckEmailNote } from '@/features/authentication/components/check-email-note';
 import {
   PasswordRequirementsList,
   PasswordStrengthBolt,
 } from '@/features/authentication/components/password-validator';
-import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
@@ -44,10 +39,9 @@ import { authMutations } from '../hooks/auth-hooks';
 import { passwordValidation } from '../utils/password-validation-utils';
 
 const SignUpForm = ({
-  showCheckYourEmailNote,
   setShowCheckYourEmailNote,
 }: {
-  showCheckYourEmailNote: boolean;
+  showCheckYourEmailNote?: boolean;
   setShowCheckYourEmailNote: (value: boolean) => void;
 }) => {
   const [searchParams] = useSearchParams();
@@ -61,31 +55,7 @@ const SignUpForm = ({
       email: searchParams.get('email') || '',
     },
   });
-  const websiteName = flagsHooks.useWebsiteBranding()?.websiteName;
-  const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
-  const showNewsLetterCheckbox = useMemo(() => {
-    if (!edition || !websiteName) {
-      return false;
-    }
-    switch (edition) {
-      case ApEdition.CLOUD: {
-        if (
-          typeof websiteName === 'string' &&
-          websiteName.toLowerCase() === 'activepieces'
-        ) {
-          form.setValue('newsLetter', true);
-          return true;
-        }
-        return false;
-      }
-      case ApEdition.ENTERPRISE:
-        return false;
-      case ApEdition.COMMUNITY: {
-        form.setValue('newsLetter', true);
-        return true;
-      }
-    }
-  }, [edition, websiteName]);
+  const showNewsLetterCheckbox = true;
 
   const redirectAfterLogin = useRedirectAfterLogin();
   const navigate = useNavigate();
@@ -168,14 +138,7 @@ const SignUpForm = ({
     });
   };
 
-  return showCheckYourEmailNote ? (
-    <div className="pt-6">
-      <CheckEmailNote
-        email={form.getValues().email.trim().toLowerCase()}
-        type={OtpType.EMAIL_VERIFICATION}
-      />
-    </div>
-  ) : (
+  return (
     <>
       <Form {...form}>
         <form className="flex flex-col space-y-4">

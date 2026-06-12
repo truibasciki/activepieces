@@ -1,12 +1,10 @@
 import {
-  ApFlagId,
   isNil,
   Permission,
-  PlatformRole,
   ProjectType,
 } from '@activepieces/shared';
 import { t } from 'i18next';
-import { Bell, GitBranch, Puzzle, Settings, Users } from 'lucide-react';
+import { Puzzle, Settings } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -19,26 +17,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { projectCollectionUtils } from '@/features/projects';
 import { ApProjectDisplay } from '@/features/projects/components/ap-project-display';
 import { useAuthorization } from '@/hooks/authorization-hooks';
-import { flagsHooks } from '@/hooks/flags-hooks';
-import { platformHooks } from '@/hooks/platform-hooks';
-import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
 import { ProjectAvatar } from '../project-avatar';
 
-import { AlertsSettings } from './alerts';
-import { EnvironmentSettings } from './environment';
 import { GeneralSettings, FormValues } from './general';
 import { McpServerSettings } from './mcp-server';
-import { MembersSettings } from './members';
 import { PiecesSettings } from './pieces';
 
 type TabId =
   | 'general'
-  | 'members'
-  | 'alerts'
   | 'pieces'
-  | 'environment'
   | 'mcp';
 
 interface ProjectSettingsDialogProps {
@@ -61,13 +50,6 @@ export function ProjectSettingsDialog({
   const { checkAccess } = useAuthorization();
   const { project } = projectCollectionUtils.useCurrentProject();
   const previousOpenRef = useRef(open);
-
-  const { data: showAlerts } = flagsHooks.useFlag(ApFlagId.SHOW_ALERTS);
-  const { data: showProjectMembers } = flagsHooks.useFlag(
-    ApFlagId.SHOW_PROJECT_MEMBERS,
-  );
-  const { platform } = platformHooks.useCurrentPlatform();
-  const platformRole = userHooks.getCurrentUserPlatformRole();
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -105,9 +87,7 @@ export function ProjectSettingsDialog({
     previousOpenRef.current = open;
   }, [open, project]);
 
-  const hasGeneralSettings =
-    project.type === ProjectType.TEAM ||
-    (platform.plan.embeddingEnabled && platformRole === PlatformRole.ADMIN);
+  const hasGeneralSettings = project.type === ProjectType.TEAM;
 
   const tabs = [
     {
@@ -115,21 +95,6 @@ export function ProjectSettingsDialog({
       label: t('General'),
       icon: <Settings className="w-4 h-4" />,
       disabled: !hasGeneralSettings,
-    },
-    {
-      id: 'members' as TabId,
-      label: t('Members'),
-      icon: <Users className="w-4 h-4" />,
-      disabled:
-        project.type !== ProjectType.TEAM ||
-        !checkAccess(Permission.READ_PROJECT_MEMBER) ||
-        !showProjectMembers,
-    },
-    {
-      id: 'alerts' as TabId,
-      label: t('Alert Emails'),
-      icon: <Bell className="w-4 h-4" />,
-      disabled: !checkAccess(Permission.READ_ALERT) || !showAlerts,
     },
     {
       id: 'mcp' as TabId,
@@ -143,26 +108,14 @@ export function ProjectSettingsDialog({
       icon: <Puzzle className="w-4 h-4" />,
       disabled: false,
     },
-    {
-      id: 'environment' as TabId,
-      label: t('Environment'),
-      icon: <GitBranch className="w-4 h-4" />,
-      disabled: !checkAccess(Permission.READ_PROJECT_RELEASE),
-    },
   ].filter((tab) => !tab.disabled);
 
   const renderTabContent = () => {
     switch (activeTab) {
       case 'general':
         return <GeneralSettings form={form} />;
-      case 'members':
-        return <MembersSettings />;
-      case 'alerts':
-        return <AlertsSettings />;
       case 'pieces':
         return <PiecesSettings />;
-      case 'environment':
-        return <EnvironmentSettings />;
       case 'mcp':
         return <McpServerSettings />;
       default:
